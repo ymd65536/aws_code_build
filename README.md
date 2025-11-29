@@ -43,11 +43,15 @@
 
 説明は以上にして、CodeBuildを使って簡単なビルドを実行してみます。今回はGitHubのパブリックリポジトリを使った手順になります。具体的には以下の通りです。
 
-- buildspec.ymlを用意する
-- CodeBuild用のIAMロールを作成する
-- CodeBuildプロジェクトを作成する
-- CodeBuildを実行する
-- ビルド結果を確認する
+- 事前準備
+  - buildspec.ymlを用意する
+  - ECRでリポジトリを作成する
+
+- CodeBuildの設定と実行
+  - CodeBuild用のIAMロールを作成する
+  - CodeBuildプロジェクトを作成する
+  - CodeBuildを実行する
+  - ビルド結果を確認する
 
 ## AWS CodeBuildと合わせて使うサービス
 
@@ -110,6 +114,7 @@ S3バケットは静的Webサイトホスティング用に設定され、ユー
 - AWS Lambda: ビルドされたDockerイメージをデプロイするため
 
 このパターンではAWS SAMを含むサーバーレスフレームワークを利用することが多いです。
+必要に応じてAPI Gatewayを組み合わせて使用します。
 
 ## VPC上でAWS CodeBuildを利用する
 
