@@ -39,6 +39,18 @@
 
 このCode兄弟を組み合わせることで、ソースコードの管理からビルド、テスト、デプロイまでの一連のプロセスをAWS内で自動化できます。
 
+## CodeBuildの基本
+
+buildspec.ymlを元にビルドを実行します。
+ビルドの基本は4工程にわたるphasesです。具体的には以下のとおりです。
+
+- install
+- pre_build
+- build
+- post_build
+
+他にも`run-as`、`env`、`proxy`、`reports`、`artifacts`、`cache`がありますが、今回はphasesを試してみましょう。
+
 ## ハンズオン
 
 説明は以上にして、CodeBuildを使って簡単なビルドを実行してみます。今回はGitHubのパブリックリポジトリを使った手順になります。具体的には以下の通りです。
@@ -52,6 +64,21 @@
   - CodeBuildプロジェクトを作成する
   - CodeBuildを実行する
   - ビルド結果を確認する
+
+### リポジトリをクローンする
+
+セットアップするために、リポジトリをクローンします。
+
+```bash
+git clone https://github.com/ymd65536/AWSCodeBuild.git
+```
+
+このリポジトリに今回のセットアップに必要なファイルが含まれています。
+ディレクトリを変更します。
+
+```bash
+cd AWSCodeBuild
+```
 
 ## AWS CodeBuildと合わせて使うサービス
 
@@ -117,8 +144,6 @@ S3バケットは静的Webサイトホスティング用に設定され、ユー
 必要に応じてAPI Gatewayを組み合わせて使用します。
 
 ## VPC上でAWS CodeBuildを利用する
-
-## おまけ：GitHub Actionsの関係
 
 ## まとめ
 
