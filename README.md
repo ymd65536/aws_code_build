@@ -1,4 +1,7 @@
 # 【AWS】手を動かして学ぶAWS AWS CodeBuild
+## この記事のポイント
+
+- AwS CodeBuildでコンテナイメージをビルドするチュートリアルだYo
 
 ## はじめに
 
@@ -80,6 +83,22 @@ git clone https://github.com/ymd65536/AWSCodeBuild.git
 cd AWSCodeBuild
 ```
 
+## CodeBuildを構築してイメージをビルド
+
+次にCloudFormationテンプレートを使用してCodeBuildのプロジェクトを作成し、ビルドを実行します。
+
+以下のコマンドでCloudFormationスタックをデプロイします。
+
+```bash
+aws cloudformation deploy --template-file image_build.yml --stack-name devCodebuild --capabilities CAPABILITY_NAMED_IAM
+```
+
+スタックのデプロイが完了したら、以下のコマンドでビルドを開始します。`BUILD_ID`という変数の後ろから最後までのコマンドはビルドの進捗をポーリングしてステータスを表示するためのものです。
+
+```bash
+aws codebuild start-build --project-name devCodebuild-build-project --region ap-northeast-1 && BUILD_ID="devCodebuild-build-project:e8aeb764-5c76-480c-87e5-3a1183944c69" && while true; do STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --region ap-northeast-1 --query 'builds[0].buildStatus' --output text); echo "Build status: $STATUS"; if [ "$STATUS" != "IN_PROGRESS" ]; then break; fi; sleep 10; done && echo "Final status: $STATUS"
+```
+
 ## AWS CodeBuildと合わせて使うサービス
 
 ハンズオンは以上です。ここからはCodeBuildを他のサービスと組み合わせて使う場合のパターンを紹介します。
@@ -90,9 +109,9 @@ CodeBuildは前述のCode兄弟を組み合わせることを基本とし、他�
 
 ### パターン1：静的Webサイトホスティングの場合
 
-- CodeCommit: ソースコードのリポジトリとして使用し、CodeBuildがこのリポジトリからコードを取得してビルドを実行します。
-- CodeBuild: ソースコードのビルドを実行します。例えば、静的Webサイトの場合、HTML、CSS、JavaScriptのビルドや最適化を行います。
-- S3: ビルド成果物の保存先として使用します。CodeBuildはビルド後に生成されたアーティファクトをS3バケットにアップロードできます。
+- CodeCommit: ソースコードのリポジトリとして使用し、CodeBuildがこのリポジトリからコードを取得してビルドを実行
+- CodeBuild: ソースコードのビルドを実行します。例えば、静的Webサイトの場合、HTML、CSS、JavaScriptのビルドや最適化
+- S3: ビルド成果物の保存先として使用します。CodeBuildはビルド後に生成されたアーティファクトをS3バケットにアップロード
 
 このパターンでは、CodeBuildがソースコードをビルドし、生成された静的WebサイトのファイルをS3にアップロードします。
 S3バケットは静的Webサイトホスティング用に設定され、ユーザーはS3のURLを通じてWebサイトにアクセスできます。
@@ -101,18 +120,18 @@ S3バケットは静的Webサイトホスティング用に設定され、ユー
 
 ### パターン2: コンテナ化されたアプリケーションのビルドとデプロイの場合
 
-- CodeCommit: ソースコードとDockerfileのリポジトリとして使用します。
-- CodeBuild: Dockerイメージのビルドを実行します。
+- CodeCommit: ソースコードとDockerfileのリポジトリとして使用します
+- CodeBuild: Dockerイメージのビルドを実行します
 - Amazon ECR: ビルドされたDockerイメージの保存先として使用します
-- Amazon ECSまたはAmazon EKS: ビルドされたDockerイメージをデプロイするために使用します。
+- Amazon ECSまたはAmazon EKS: ビルドされたDockerイメージをデプロイするために使用します
 
 このパターンでは、CodeBuildがDockerイメージをビルドし、ECRにプッシュします。その後、ECSまたはEKSがそのイメージを使用してコンテナを起動します。
-フロントエンドからへのアクセスはALB(Application Load Balancer)を使用して行うことが一般的です。
+フロントエンドからへのアクセスはALB（Application Load Balancer）を使用して行うことが一般的です。
 
 ### パターン3: コンテナ化されたアプリケーションのビルドとデプロイの場合(App Runner利用時)
 
-- CodeCommit: ソースコードとDockerfileのリポジトリとして使用します。
-- CodeBuild: Dockerイメージのビルドを実行します。
+- CodeCommit: ソースコードとDockerfileのリポジトリとして使用します
+- CodeBuild: Dockerイメージのビルドを実行します
 - Amazon ECR: ビルドされたDockerイメージの保存先として使用します
 - AWS App Runner: ビルドされたDockerイメージをデプロイするため
 
@@ -143,9 +162,13 @@ S3バケットは静的Webサイトホスティング用に設定され、ユー
 このパターンではAWS SAMを含むサーバーレスフレームワークを利用することが多いです。
 必要に応じてAPI Gatewayを組み合わせて使用します。
 
-## VPC上でAWS CodeBuildを利用する
-
 ## まとめ
+
+AWS CodeBuildは、クラウドで管理不要のビルドサーバーを提供し、ソースコードのビルドとテストを自動化するサービスです。
+CodeCommit、ECR、ECS/EKSなどAWSのCode兄弟や他サービスと連携し、コンテナイメージのビルドやCI/CDパイプラインを構築します
+
+ビルドに困ったときのファーストチョイスになるので積極的に試してみましょう。
+また、GitHub Actionsのランナーをマネージドに運用できるところもCodeBuildの大きなポイントです。
 
 ## AWS CLI インストールと SSO ログイン手順 (Linux環境)
 
